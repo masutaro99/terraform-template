@@ -10,13 +10,16 @@ resource "aws_ecs_task_definition" "task_definition" {
   requires_compatibilities = ["FARGATE"]
   container_definitions    = file("./container_definition.json")
   execution_role_arn       = module.ecs_task_execution_role.iam_role_arn
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_ecs_service" "ecs_service" {
   name                              = "${var.system_name}-${var.env_name}-ecs-service"
   cluster                           = aws_ecs_cluster.ecs_cluster.arn
   task_definition                   = aws_ecs_task_definition.task_definition.arn
-  desired_count                     = 2
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   platform_version                  = "1.4.0"
   health_check_grace_period_seconds = 60
