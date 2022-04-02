@@ -14,24 +14,13 @@ resource "aws_lb" "alb" {
   ]
 
   security_groups = [
-    module.http_sg.security_group_id
+    module.https_sg.security_group_id
   ]
 }
 
 #----------------------------------------
 # HTTP
 #----------------------------------------
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.blue.arn
-  }
-}
-
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = "443"
@@ -56,23 +45,12 @@ resource "aws_lb_listener" "test_http" {
   }
 }
 
-module "http_sg" {
+module "https_sg" {
   source      = "./module/security_group"
-  name        = "${var.system_name}-${var.env_name}-alb-http-sg"
+  name        = "${var.system_name}-${var.env_name}-alb-https-sg"
   vpc_id      = aws_vpc.vpc.id
-  port        = 80
+  port        = 443
   cidr_blocks = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "inbound_https" {
-  type      = "ingress"
-  from_port = 443
-  to_port   = 443
-  protocol  = "tcp"
-  cidr_blocks = [
-    "0.0.0.0/0"
-  ]
-  security_group_id = module.http_sg.security_group_id
 }
 
 resource "aws_security_group_rule" "inbound_test_http" {
@@ -83,7 +61,7 @@ resource "aws_security_group_rule" "inbound_test_http" {
   cidr_blocks = [
     "0.0.0.0/0"
   ]
-  security_group_id = module.http_sg.security_group_id
+  security_group_id = module.https_sg.security_group_id
 }
 
 #----------------------------------------

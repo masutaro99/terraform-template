@@ -26,7 +26,6 @@ resource "aws_codedeploy_deployment_group" "deployment_group" {
 
   app_name               = aws_codedeploy_app.ecs_app.name
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
-  #deployment_config_name = "CodeDeployDefault.ECSCanary10Percent5Minutes"
   deployment_group_name = "${var.system_name}-${var.env_name}-deployment-group"
   service_role_arn      = module.codedeploy_role.iam_role_arn
 
@@ -61,7 +60,7 @@ resource "aws_codedeploy_deployment_group" "deployment_group" {
   load_balancer_info {
     target_group_pair_info {
       prod_traffic_route {
-        listener_arns = [aws_lb_listener.http.arn]
+        listener_arns = [aws_lb_listener.https.arn]
       }
 
       target_group {
