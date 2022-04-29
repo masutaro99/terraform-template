@@ -28,10 +28,6 @@ data "aws_iam_policy_document" "codepipeline" {
   }
 }
 
-data "aws_ssm_parameter" "github_token" {
-  name = "/continuous_apply/github_token"
-}
-
 module "codepipeline_role" {
   source      = "./module/iam_role"
   name        = "${var.system_name}-${var.env_name}-pipeline-role"
@@ -41,13 +37,6 @@ module "codepipeline_role" {
 
 resource "aws_s3_bucket" "artifact" {
   bucket = "${var.system_name}-${var.env_name}-pipeline-artifact"
-
-  # lifecycle_rule {
-  #   enabled = true
-  #   expiration {
-  #     days = "180"
-  #   }
-  # }
 }
 
 resource "aws_codestarconnections_connection" "github-connection" {
@@ -72,7 +61,6 @@ resource "aws_codepipeline" "pipeline" {
         ConnectionArn    = aws_codestarconnections_connection.github-connection.arn
         FullRepositoryId = "masutaro99/sample-container"
         BranchName       = "main"
-        # OutputArtifactFormat = "CODEBUILD_CLONE_REF"
       }
     }
   }
@@ -124,5 +112,4 @@ resource "aws_codepipeline" "pipeline" {
     location = aws_s3_bucket.artifact.id
     type     = "S3"
   }
-
 }
